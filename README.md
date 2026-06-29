@@ -100,7 +100,7 @@ See `.env.example`:
 - `hospitalesenvenezuela.com` (enabled) - Supabase RPC `buscar_paciente`
 - `rescateinfantilvenezuela.com` (enabled) - `GET /api/search?q=<name>&page=1&limit=20`
 - `desaparecidos-terremoto-api.theempire.tech` (disabled) - reCAPTCHA needed; contact source developer for integration access
-- `venezuelatebusca.com` (enabled) - `GET /_root.data?query=<name>`
+- `venezuelatebusca.com` (disabled) - CORS + Cloudflare challenge; pending allowlist/API access
 
 ## Source Management
 

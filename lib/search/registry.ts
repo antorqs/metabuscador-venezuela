@@ -43,7 +43,8 @@ export const SOURCE_CATALOG: SourceCatalogEntry[] = [
     key: venezuelaTeBuscaAdapter.key,
     name: venezuelaTeBuscaAdapter.displayName,
     sourceUrl: venezuelaTeBuscaAdapter.sourceUrl,
-    enabled: true,
+    enabled: false,
+    note: "CORS + Cloudflare challenge; pending allowlist/API access.",
     adapter: venezuelaTeBuscaAdapter,
   },
 ];

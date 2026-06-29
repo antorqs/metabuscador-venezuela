@@ -104,7 +104,7 @@ export default async function Home({ searchParams }: HomePageProps) {
                   sourceIndex % 2 === 0 ? styles.sourceGroupGreen : styles.sourceGroupBlue
                 }`}
               >
-                <ResultCards source={source} query={payload.query} />
+                <ResultCards source={source} />
               </article>
             ))}
           </section>

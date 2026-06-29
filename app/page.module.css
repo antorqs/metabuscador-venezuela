@@ -293,16 +293,6 @@
   overflow-wrap: anywhere;
 }
 
-.sourceHint {
-  color: #355468;
-  font-size: 0.86rem;
-}
-
-.sourceHintError {
-  color: #9a2f2f;
-  font-size: 0.86rem;
-}
-
 @media (max-width: 960px) {
   .main {
     width: min(920px, 100% - 1.2rem);
