@@ -1,65 +1,189 @@
-import Image from "next/image";
 import styles from "./page.module.css";
+import { searchAllSources } from "@/lib/search/engine";
 
-export default function Home() {
+const DEFAULT_SOURCE_TIMEOUT_MS = 7000;
+const DEFAULT_MAX_RESULTS_PER_SOURCE = 50;
+
+function getPositiveInt(value: string | undefined, fallback: number): number {
+  if (!value) {
+    return fallback;
+  }
+
+  const parsed = Number.parseInt(value, 10);
+  if (!Number.isFinite(parsed) || parsed <= 0) {
+    return fallback;
+  }
+
+  return parsed;
+}
+
+function normalizeQuery(value: string | undefined): string | null {
+  const normalized = value?.trim();
+  if (!normalized) {
+    return null;
+  }
+
+  if (normalized.length < 2 || normalized.length > 120) {
+    return null;
+  }
+
+  return normalized;
+}
+
+function getSourceStatusLabel(status: "ok" | "error" | "timeout"): string {
+  switch (status) {
+    case "ok":
+      return "correcto";
+    case "error":
+      return "error";
+    case "timeout":
+      return "tiempo agotado";
+    default:
+      return status;
+  }
+}
+
+function getPersonStatusLabel(status: "missing" | "found" | "hospitalized" | "unknown"): string {
+  switch (status) {
+    case "missing":
+      return "desaparecido";
+    case "found":
+      return "encontrado";
+    case "hospitalized":
+      return "hospitalizado";
+    case "unknown":
+      return "desconocido";
+    default:
+      return status;
+  }
+}
+
+type HomePageProps = {
+  searchParams: Promise<{ q?: string }>;
+};
+
+export default async function Home({ searchParams }: HomePageProps) {
+  const params = await searchParams;
+  const query = normalizeQuery(params.q);
+
+  const sourceTimeoutMs = getPositiveInt(
+    process.env.SOURCE_TIMEOUT_MS,
+    DEFAULT_SOURCE_TIMEOUT_MS,
+  );
+  const maxResultsPerSource = getPositiveInt(
+    process.env.MAX_RESULTS_PER_SOURCE,
+    DEFAULT_MAX_RESULTS_PER_SOURCE,
+  );
+
+  const payload = query
+    ? await searchAllSources(query, {
+        sourceTimeoutMs,
+        maxResultsPerSource,
+      })
+    : null;
+
   return (
     <div className={styles.page}>
       <main className={styles.main}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className={styles.intro}>
-          <h1>To get started, edit the page.tsx file.</h1>
+        <header className={styles.header}>
+          <p className={styles.badge}>Metabuscador de Emergencia</p>
+          <h1>Busqueda Centralizada de Personas</h1>
           <p>
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Learning
-            </a>{" "}
-            center.
+            Ingresa un nombre y revisa resultados agrupados por sitio. Esto
+            ayuda a familias y voluntarios a consultar varios registros en un
+            solo lugar.
           </p>
-        </div>
-        <div className={styles.ctas}>
-          <a
-            className={styles.primary}
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className={styles.logo}
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
+        </header>
+
+        <form className={styles.searchForm} action="/" method="get">
+          <label htmlFor="q" className={styles.label}>
+            Nombre
+          </label>
+          <div className={styles.searchRow}>
+            <input
+              id="q"
+              name="q"
+              className={styles.searchInput}
+              defaultValue={params.q ?? ""}
+              placeholder="Ejemplo: Maria Fernanda Gonzalez"
+              minLength={2}
+              maxLength={120}
+              required
             />
-            Deploy Now
-          </a>
-          <a
-            className={styles.secondary}
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
+            <button type="submit" className={styles.searchButton}>
+              Buscar
+            </button>
+          </div>
+        </form>
+
+        {!query && (
+          <section className={styles.emptyState}>
+            <h2>Listo para buscar</h2>
+            <p>Escribe al menos 2 caracteres para iniciar.</p>
+          </section>
+        )}
+
+        {params.q && !query && (
+          <section className={styles.emptyState}>
+            <h2>Busqueda invalida</h2>
+            <p>La consulta debe tener entre 2 y 120 caracteres.</p>
+          </section>
+        )}
+
+        {payload && (
+          <section className={styles.resultsSection}>
+            <p className={styles.resultMeta}>
+              Mostrando resultados para <strong>{payload.query}</strong>
+            </p>
+
+            {payload.sources.map((source) => (
+              <article key={source.key} className={styles.sourceGroup}>
+                <div className={styles.sourceHeaderRow}>
+                  <h2>
+                    Desde: {source.name}
+                    {source.sourceUrl && (
+                      <a
+                        href={source.sourceUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className={styles.sourceLink}
+                      >
+                        Ver fuente
+                      </a>
+                    )}
+                  </h2>
+                  <span className={styles.status}>{getSourceStatusLabel(source.status)}</span>
+                </div>
+
+                {source.results.length === 0 ? (
+                  <p className={styles.noResults}>Esta fuente no reporta coincidencias.</p>
+                ) : (
+                  <div className={styles.cardGrid}>
+                    {source.results.map((result) => (
+                      <article key={result.id} className={styles.resultCard}>
+                        <p className={styles.personName}>{result.name}</p>
+                        <p>
+                          <strong>Estado:</strong> {getPersonStatusLabel(result.status)}
+                        </p>
+                        <p>
+                          <strong>Ubicacion:</strong> {result.location ?? "No reportada"}
+                        </p>
+                        <p>
+                          <strong>Contacto:</strong> {result.contact ?? "No reportado"}
+                        </p>
+                        <p>
+                          <strong>Foto:</strong> {result.photoUrl ? "Disponible" : "No reportada"}
+                        </p>
+                      </article>
+                    ))}
+                  </div>
+                )}
+
+                {source.error && <p className={styles.errorText}>Error de fuente: {source.error}</p>}
+              </article>
+            ))}
+          </section>
+        )}
       </main>
     </div>
   );

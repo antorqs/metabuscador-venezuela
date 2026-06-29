@@ -1,36 +1,88 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+Meta Busca Vzla is an emergency Next.js service that centralizes search across missing/found person sources.
 
-## Getting Started
+## Requirements
 
-First, run the development server:
+- Node.js 20+ recommended
+- npm
+
+## Quick Start
+
+1. Copy env file and set API key:
+
+```bash
+cp .env.example .env.local
+```
+
+2. Start dev server:
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Public Search API
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Endpoint:
 
-## Learn More
+- `GET /api/search?q=<name>`
 
-To learn more about Next.js, take a look at the following resources:
+Authentication:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- Header (preferred): `x-api-key: <key>`
+- Query fallback: `?apiKey=<key>`
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Example request:
 
-## Deploy on Vercel
+```bash
+curl "http://localhost:3000/api/search?q=maria" \
+  -H "x-api-key: replace-with-your-emergency-key"
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Example successful response:
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```json
+{
+  "query": "maria",
+  "searchedAt": "2026-06-29T00:00:00.000Z",
+  "sources": [
+    {
+      "key": "911-ubica-me",
+      "name": "911.ubica.me",
+      "sourceUrl": "https://911.ubica.me/",
+      "status": "ok",
+      "results": []
+    }
+  ]
+}
+```
+
+Rate limiting:
+
+- Per-IP limit with escalating cooldown
+- Returns `429` with `Retry-After` when blocked
+- Includes rate headers:
+  - `X-RateLimit-Limit`
+  - `X-RateLimit-Remaining`
+  - `X-RateLimit-Reset`
+
+## Environment Variables
+
+See `.env.example`:
+
+- `API_KEYS` comma-separated allowed keys
+- `HOSPITALES_VE_ANON_KEY` anon key used by the hospitalesenvenezuela.com source
+- `RATE_LIMIT_MAX`, `RATE_LIMIT_WINDOW_MS`
+- `RATE_LIMIT_BASE_COOLDOWN_MS`, `RATE_LIMIT_MAX_COOLDOWN_MS`, `RATE_LIMIT_STRIKE_RESET_MS`
+- `SOURCE_TIMEOUT_MS`, `MAX_RESULTS_PER_SOURCE`
+
+## Current Sources
+
+- `911.ubica.me` (per-letter JSON files)
+- `hospitalesenvenezuela.com` (Supabase RPC `buscar_paciente`)
+
+## Scripts
+
+- `npm run dev` start local development server
+- `npm run lint` run lint checks
+- `npm run build` build for production
