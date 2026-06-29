@@ -92,6 +92,7 @@ See `.env.example`:
 - `RATE_LIMIT_MAX`, `RATE_LIMIT_WINDOW_MS`
 - `RATE_LIMIT_BASE_COOLDOWN_MS`, `RATE_LIMIT_MAX_COOLDOWN_MS`, `RATE_LIMIT_STRIKE_RESET_MS`
 - `SOURCE_TIMEOUT_MS`, `MAX_RESULTS_PER_SOURCE`
+- `VTB_USER_AGENT`, `VTB_ACCEPT_LANGUAGE` request headers for `venezuelatebusca.com` source
 
 ## Current Sources
 

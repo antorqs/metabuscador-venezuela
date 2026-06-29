@@ -5,6 +5,9 @@ const SOURCE_KEY = "venezuela-te-busca";
 const SOURCE_NAME = "venezuelatebusca.com";
 const SOURCE_URL = "https://venezuelatebusca.com/";
 const SEARCH_URL = "https://venezuelatebusca.com/_root.data";
+const DEFAULT_USER_AGENT =
+  "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36";
+const DEFAULT_ACCEPT_LANGUAGE = "es-ES,es;q=0.9,en;q=0.8";
 
 interface ReporterInfo {
   name?: string | null;
@@ -31,6 +34,38 @@ interface VenezuelaTeBuscaRecord {
 
 interface DecodedRootData {
   [key: string]: unknown;
+}
+
+function getRequestHeaders(): HeadersInit {
+  const userAgent = process.env.VTB_USER_AGENT?.trim() || DEFAULT_USER_AGENT;
+  const acceptLanguage =
+    process.env.VTB_ACCEPT_LANGUAGE?.trim() || DEFAULT_ACCEPT_LANGUAGE;
+
+  return {
+    accept:
+      "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8",
+    "accept-language": acceptLanguage,
+    "cache-control": "max-age=0",
+    "upgrade-insecure-requests": "1",
+    referer: SOURCE_URL,
+    "user-agent": userAgent,
+  };
+}
+
+function isCloudflareChallenge(payload: string, contentType: string | null): boolean {
+  const normalizedType = (contentType ?? "").toLowerCase();
+  const normalizedPayload = payload.toLowerCase();
+
+  if (!normalizedType.includes("text/html")) {
+    return false;
+  }
+
+  return (
+    normalizedPayload.includes("just a moment") ||
+    normalizedPayload.includes("enable javascript and cookies to continue") ||
+    normalizedPayload.includes("cf_chl") ||
+    normalizedPayload.includes("challenge-platform")
+  );
 }
 
 function mapStatus(value: string | null | undefined, hospitalStatus: string | null | undefined): PersonStatus {
@@ -230,12 +265,29 @@ async function fetchRecords(query: string): Promise<VenezuelaTeBuscaRecord[]> {
   const url = new URL(SEARCH_URL);
   url.searchParams.set("query", query);
 
-  const response = await fetch(url.toString(), { cache: "no-store" });
+  const response = await fetch(url.toString(), {
+    cache: "no-store",
+    headers: getRequestHeaders(),
+  });
+
+  const contentType = response.headers.get("content-type");
+  const rawPayload = await response.text();
+
+  if (isCloudflareChallenge(rawPayload, contentType)) {
+    throw new Error("venezuelatebusca.com blocked the request with Cloudflare challenge");
+  }
+
   if (!response.ok) {
     throw new Error(`venezuelatebusca.com returned HTTP ${response.status}`);
   }
 
-  const payload: unknown = await response.json();
+  let payload: unknown;
+  try {
+    payload = JSON.parse(rawPayload) as unknown;
+  } catch {
+    throw new Error("venezuelatebusca.com returned non-JSON payload");
+  }
+
   const decoded = decodeRootDataPayload(payload);
   return extractPersons(decoded);
 }
