@@ -9,12 +9,28 @@ const RPC_URL =
 
 interface HospitalesVeRecord {
   nombre?: string | null;
+  detalle?: string | null;
+  cedula?: string | null;
   centro?: string | null;
   ciudad?: string | null;
   telefono?: string | null;
   registrado?: string | null;
   vol_tel?: string | null;
   contacto?: string | null;
+}
+
+function extractAge(detail: string | null | undefined): string | null {
+  const normalized = toOptionalString(detail);
+  if (!normalized) {
+    return null;
+  }
+
+  const match = normalized.match(/(\d{1,3})\s*(ANOS|AÑOS|YEAR|YEARS)/i);
+  if (!match) {
+    return null;
+  }
+
+  return match[1];
 }
 
 function buildLocation(record: HospitalesVeRecord): string | null {
@@ -59,6 +75,8 @@ function mapRecord(record: HospitalesVeRecord): PersonResult | null {
     sourceKey: SOURCE_KEY,
     sourceName: SOURCE_NAME,
     name,
+    age: extractAge(record.detalle),
+    cedula: toOptionalString(record.cedula),
     photoUrl: null,
     status: "hospitalized",
     location: buildLocation(record),

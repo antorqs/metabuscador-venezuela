@@ -56,6 +56,9 @@ export default async function Home({ searchParams }: HomePageProps) {
   const payload: MetaSearchResponse | null = query
     ? await fetch(await getUiSearchUrl(query), {
         cache: "no-store",
+        headers: {
+          "x-internal-ui-key": process.env.INTERNAL_UI_SEARCH_KEY ?? "",
+        },
       })
         .then(async (response) => {
           if (!response.ok) {
@@ -121,11 +124,16 @@ export default async function Home({ searchParams }: HomePageProps) {
               Mostrando resultados para <strong>{payload.query}</strong>
             </p>
 
-            {payload.sources.map((source) => (
-              <article key={source.key} className={styles.sourceGroup}>
+            {payload.sources.map((source, sourceIndex) => (
+              <article
+                key={source.key}
+                className={`${styles.sourceGroup} ${
+                  sourceIndex % 2 === 0 ? styles.sourceGroupGreen : styles.sourceGroupBlue
+                }`}
+              >
                 <div className={styles.sourceHeaderRow}>
-                  <h2>
-                    Desde: {source.name}
+                  <div className={styles.sourceTitleWrap}>
+                    <h2>Desde: {source.name}</h2>
                     {source.sourceUrl && (
                       <a
                         href={source.sourceUrl}
@@ -136,7 +144,7 @@ export default async function Home({ searchParams }: HomePageProps) {
                         Ver fuente
                       </a>
                     )}
-                  </h2>
+                  </div>
                   <span className={styles.status}>{getSourceStatusLabel(source.status)}</span>
                 </div>
 
@@ -148,6 +156,12 @@ export default async function Home({ searchParams }: HomePageProps) {
                       <article key={result.id} className={styles.resultCard}>
                         <p className={styles.personName}>{result.name}</p>
                         <p>
+                          <strong>Edad:</strong> {result.age ?? "No reportada"}
+                        </p>
+                        <p>
+                          <strong>Cedula:</strong> {result.cedula ?? "No reportada"}
+                        </p>
+                        <p>
                           <strong>Estado:</strong> {getPersonStatusLabel(result.status)}
                         </p>
                         <p>
@@ -157,7 +171,8 @@ export default async function Home({ searchParams }: HomePageProps) {
                           <strong>Contacto:</strong> {result.contact ?? "No reportado"}
                         </p>
                         <p>
-                          <strong>Foto:</strong> {result.photoUrl ? "Disponible" : "No reportada"}
+                          <strong>Foto:</strong>{" "}
+                          {result.photoUrl ? "Disponible" : "No reportada"}
                         </p>
                       </article>
                     ))}

@@ -28,15 +28,15 @@ export const SOURCE_CATALOG: SourceCatalogEntry[] = [
     key: rescateInfantilAdapter.key,
     name: rescateInfantilAdapter.displayName,
     sourceUrl: rescateInfantilAdapter.sourceUrl,
-    enabled: false,
-    note: "reCAPTCHA needed; contact source developer for integration access.",
+    enabled: true,
     adapter: rescateInfantilAdapter,
   },
   {
     key: desaparecidosTerremotoAdapter.key,
     name: desaparecidosTerremotoAdapter.displayName,
     sourceUrl: desaparecidosTerremotoAdapter.sourceUrl,
-    enabled: true,
+    enabled: false,
+    note: "reCAPTCHA needed; contact source developer for integration access.",
     adapter: desaparecidosTerremotoAdapter,
   },
   {

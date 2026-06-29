@@ -9,6 +9,7 @@ const BASE_DATA_URL = "https://911.ubica.me/public/data";
 interface Ubica911Record {
   person_record_id?: string;
   full_name?: string;
+  age?: string;
   ext_venezuela_ci?: string;
   phone?: string;
   last_known_location?: string;
@@ -82,6 +83,8 @@ function mapRecord(record: Ubica911Record): PersonResult | null {
     sourceKey: SOURCE_KEY,
     sourceName: SOURCE_NAME,
     name,
+    age: toOptionalString(record.age),
+    cedula: toOptionalString(record.ext_venezuela_ci),
     photoUrl: null,
     status: mapStatus(record.status),
     location,

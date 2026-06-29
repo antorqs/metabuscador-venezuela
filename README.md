@@ -52,7 +52,22 @@ Example successful response:
       "name": "911.ubica.me",
       "sourceUrl": "https://911.ubica.me/",
       "status": "ok",
-      "results": []
+      "results": [
+        {
+          "id": "LP-401",
+          "sourceKey": "911-ubica-me",
+          "sourceName": "911.ubica.me",
+          "name": "SEBASTIAN TORREALBA RODRIGUEZ",
+          "age": "7",
+          "cedula": "14512432",
+          "photoUrl": null,
+          "status": "found",
+          "location": "Hospital J.M de los Rios",
+          "contact": null,
+          "profileUrl": "https://911.ubica.me/",
+          "lastUpdated": "2026-06-29T09:50:32Z"
+        }
+      ]
     }
   ]
 }
@@ -73,6 +88,7 @@ See `.env.example`:
 
 - `API_KEYS` comma-separated allowed keys
 - `HOSPITALES_VE_ANON_KEY` anon key used by the hospitalesenvenezuela.com source
+- `INTERNAL_UI_SEARCH_KEY` shared secret for server-side UI calls to `/api/ui/search`
 - `RATE_LIMIT_MAX`, `RATE_LIMIT_WINDOW_MS`
 - `RATE_LIMIT_BASE_COOLDOWN_MS`, `RATE_LIMIT_MAX_COOLDOWN_MS`, `RATE_LIMIT_STRIKE_RESET_MS`
 - `SOURCE_TIMEOUT_MS`, `MAX_RESULTS_PER_SOURCE`
@@ -81,8 +97,8 @@ See `.env.example`:
 
 - `911.ubica.me` (enabled) - per-letter JSON files
 - `hospitalesenvenezuela.com` (enabled) - Supabase RPC `buscar_paciente`
-- `rescateinfantilvenezuela.com` (disabled) - reCAPTCHA needed; contact source developer for integration access
-- `desaparecidos-terremoto-api.theempire.tech` (enabled) - `GET /api/personas?page=1&pageSize=20&q=<name>`
+- `rescateinfantilvenezuela.com` (enabled) - `GET /api/search?q=<name>&page=1&limit=20`
+- `desaparecidos-terremoto-api.theempire.tech` (disabled) - reCAPTCHA needed; contact source developer for integration access
 - `venezuelatebusca.com` (enabled) - `GET /_root.data?query=<name>`
 
 ## Source Management
@@ -99,6 +115,7 @@ See `.env.example`:
 - The web UI uses `GET /api/ui/search` without exposing API keys in browser requests.
 - API keys are server-only and should never be sent as query params.
 - `GET /api/ui/search` accepts only same-origin requests (Origin/Referer host match).
+- Server-side UI calls can also be authorized with `x-internal-ui-key`.
 
 ## Rate Limit Notes
 

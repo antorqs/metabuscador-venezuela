@@ -25,6 +25,8 @@ interface RescateInfantilRecord {
   lastName?: string | null;
   nickname?: string | null;
   caseStatus?: string | null;
+  approximateAge?: number | null;
+  cedula?: string | null;
   rescuedAt?: string | null;
   updatedAt?: string | null;
   rescuerPhone?: string | null;
@@ -104,6 +106,10 @@ function mapRecord(record: RescateInfantilRecord): PersonResult | null {
     sourceKey: SOURCE_KEY,
     sourceName: SOURCE_NAME,
     name,
+    age: record.approximateAge !== null && record.approximateAge !== undefined
+      ? String(record.approximateAge)
+      : null,
+    cedula: toOptionalString(record.cedula),
     photoUrl: null,
     status: mapStatus(record.caseStatus),
     location: buildLocation(record),

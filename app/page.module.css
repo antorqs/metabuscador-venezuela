@@ -136,11 +136,40 @@
 .sourceGroup {
   border: 1px solid var(--line);
   border-radius: 12px;
-  padding: 0.85rem;
+  padding: 0.95rem;
   background: #fff;
   display: flex;
   flex-direction: column;
-  gap: 0.65rem;
+  gap: 0.72rem;
+  position: relative;
+}
+
+.sourceGroup::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  border-radius: 12px 12px 0 0;
+}
+
+.sourceGroupGreen {
+  background: #f4faf6;
+  border-color: #c8dfcf;
+}
+
+.sourceGroupGreen::before {
+  background: #74b18a;
+}
+
+.sourceGroupBlue {
+  background: #f4f8fc;
+  border-color: #c9d9ea;
+}
+
+.sourceGroupBlue::before {
+  background: #6f9fc8;
 }
 
 .sourceHeaderRow {
@@ -148,13 +177,21 @@
   justify-content: space-between;
   align-items: center;
   gap: 0.7rem;
+  padding-top: 0.2rem;
 }
 
-.sourceHeaderRow h2 {
-  font-size: 1.05rem;
+.sourceTitleWrap {
   display: flex;
   align-items: center;
   gap: 0.5rem;
+  min-width: 0;
+  flex-wrap: wrap;
+}
+
+.sourceTitleWrap h2 {
+  font-size: clamp(1.12rem, 1.4vw, 1.35rem);
+  line-height: 1.2;
+  overflow-wrap: anywhere;
 }
 
 .sourceLink {
@@ -165,21 +202,22 @@
   border-radius: 999px;
   padding: 0.12rem 0.45rem;
   color: #286a45;
-  background: #e9f5ee;
+  background: #eef7f1;
 }
 
 .sourceLink:hover {
-  background: #d9edde;
+  background: #e0efe6;
 }
 
 .status {
   font-size: 0.8rem;
   text-transform: uppercase;
   letter-spacing: 0.08em;
-  border: 1px solid #9bc9ab;
+  border: 1px solid #a8bfd4;
   border-radius: 999px;
   padding: 0.15rem 0.45rem;
-  color: #2d5f43;
+  color: #2d4f6b;
+  background: #eff5fb;
 }
 
 .cardGrid {
@@ -189,14 +227,25 @@
 }
 
 .resultCard {
-  border: 1px solid #c0dfcb;
+  border: 1px solid #d6e2e8;
   border-radius: 10px;
   padding: 0.75rem;
-  background: #f5faf7;
+  background: #f9fcfd;
   display: flex;
   flex-direction: column;
   gap: 0.25rem;
   line-height: 1.4;
+  overflow-wrap: anywhere;
+}
+
+.sourceGroupGreen .resultCard {
+  border-color: #cddfd2;
+  background: #f9fcfa;
+}
+
+.sourceGroupBlue .resultCard {
+  border-color: #d0ddea;
+  background: #f8fbff;
 }
 
 .personName {
@@ -211,6 +260,27 @@
 
 .errorText {
   color: #9a2f2f;
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 960px) {
+  .main {
+    width: min(920px, 100% - 1.2rem);
+    margin: 1.4rem auto;
+    padding: 1rem;
+  }
+
+  .cardGrid {
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  }
+
+  .sourceHeaderRow {
+    align-items: flex-start;
+  }
+
+  .status {
+    margin-top: 0.15rem;
+  }
 }
 
 @media (max-width: 700px) {
@@ -227,4 +297,62 @@
   .searchButton {
     width: 100%;
   }
+
+  .sourceHeaderRow {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.55rem;
+  }
+
+  .sourceTitleWrap {
+    width: 100%;
+    justify-content: space-between;
+    gap: 0.45rem;
+  }
+
+  .sourceTitleWrap h2 {
+    font-size: 1.06rem;
+  }
+
+  .status {
+    align-self: flex-start;
+  }
+
+  .cardGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 520px) {
+  .main {
+    width: calc(100% - 0.7rem);
+    margin: 0.5rem auto;
+    padding: 0.72rem;
+    border-radius: 14px;
+  }
+
+  .searchForm,
+  .sourceGroup,
+  .emptyState {
+    padding: 0.7rem;
+  }
+
+  .searchInput,
+  .searchButton {
+    min-height: 2.65rem;
+  }
+
+  .sourceTitleWrap {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .sourceLink {
+    font-size: 0.74rem;
+  }
+
+  .resultCard {
+    padding: 0.68rem;
+  }
+
 }

@@ -16,6 +16,8 @@ interface VenezuelaTeBuscaRecord {
   id?: string;
   firstName?: string | null;
   lastName?: string | null;
+  age?: number | null;
+  idNumber?: string | null;
   lastSeen?: string | null;
   status?: string | null;
   hospitalName?: string | null;
@@ -111,6 +113,8 @@ function mapRecord(record: VenezuelaTeBuscaRecord): PersonResult | null {
     sourceKey: SOURCE_KEY,
     sourceName: SOURCE_NAME,
     name,
+    age: record.age !== null && record.age !== undefined ? String(record.age) : null,
+    cedula: toOptionalString(record.idNumber),
     photoUrl: toAbsolutePhotoUrl(record.photoUrl),
     status: mapStatus(record.status, record.hospitalStatus),
     location: buildLocation(record),

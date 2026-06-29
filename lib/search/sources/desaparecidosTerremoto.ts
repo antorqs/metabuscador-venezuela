@@ -15,6 +15,8 @@ interface DesaparecidosRecord {
   primerApellido?: string | null;
   segundoApellido?: string | null;
   direccion?: string | null;
+  cedula?: string | null;
+  edad?: number | null;
   ubicacion?: string | null;
   ubicacionEstado?: string | null;
   ubicacionMunicipio?: string | null;
@@ -152,6 +154,8 @@ function mapRecord(record: DesaparecidosRecord): PersonResult | null {
     sourceKey: SOURCE_KEY,
     sourceName: SOURCE_NAME,
     name,
+    age: record.edad !== null && record.edad !== undefined ? String(record.edad) : null,
+    cedula: toOptionalString(record.cedula),
     photoUrl,
     status: mapStatus(record.estado),
     location: buildLocation(record),

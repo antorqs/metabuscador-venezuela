@@ -5,6 +5,8 @@ export interface PersonResult {
   sourceKey: string;
   sourceName: string;
   name: string;
+  age?: string | null;
+  cedula?: string | null;
   photoUrl?: string | null;
   status: PersonStatus;
   location?: string | null;

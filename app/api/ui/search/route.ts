@@ -14,6 +14,20 @@ const DEFAULT_RATE_LIMIT_BASE_COOLDOWN_MS = 10_000;
 const DEFAULT_RATE_LIMIT_MAX_COOLDOWN_MS = 60_000;
 const DEFAULT_RATE_LIMIT_STRIKE_RESET_MS = 5 * 60_000;
 
+function hasValidInternalKey(request: NextRequest): boolean {
+  const configuredKey = process.env.INTERNAL_UI_SEARCH_KEY?.trim();
+  if (!configuredKey) {
+    return false;
+  }
+
+  const providedKey = request.headers.get("x-internal-ui-key")?.trim();
+  if (!providedKey) {
+    return false;
+  }
+
+  return providedKey === configuredKey;
+}
+
 function hasAllowedOrigin(request: NextRequest): boolean {
   const host = request.headers.get("x-forwarded-host") ?? request.headers.get("host");
   if (!host) {
@@ -44,7 +58,7 @@ function hasAllowedOrigin(request: NextRequest): boolean {
 }
 
 export async function GET(request: NextRequest): Promise<Response> {
-  if (!hasAllowedOrigin(request)) {
+  if (!hasValidInternalKey(request) && !hasAllowedOrigin(request)) {
     return NextResponse.json(
       { error: "Origen no permitido" },
       { status: 403 },
