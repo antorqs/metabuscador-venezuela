@@ -209,6 +209,22 @@
   background: #e0efe6;
 }
 
+.photoButton {
+  border: none;
+  background: transparent;
+  padding: 0;
+  margin: 0;
+  color: #1f6ba5;
+  text-decoration: underline;
+  text-underline-offset: 0.15rem;
+  cursor: pointer;
+  font: inherit;
+}
+
+.photoButton:hover {
+  color: #174f7a;
+}
+
 .status {
   font-size: 0.8rem;
   text-transform: uppercase;
@@ -246,6 +262,20 @@
 .sourceGroupBlue .resultCard {
   border-color: #d0ddea;
   background: #f8fbff;
+}
+
+.inlineImageWrap {
+  margin-top: 0.4rem;
+  border: 1px solid #d2dfe8;
+  border-radius: 8px;
+  overflow: hidden;
+  background: #fff;
+}
+
+.inlineImage {
+  width: 100%;
+  height: auto;
+  object-fit: contain;
 }
 
 .personName {

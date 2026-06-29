@@ -1,36 +1,9 @@
 import { headers } from "next/headers";
 
+import ResultCards from "@/components/result-cards";
 import { normalizeSearchQuery } from "@/lib/search/query";
 import styles from "./page.module.css";
 import type { MetaSearchResponse } from "@/lib/search/types";
-
-function getSourceStatusLabel(status: "ok" | "error" | "timeout"): string {
-  switch (status) {
-    case "ok":
-      return "correcto";
-    case "error":
-      return "error";
-    case "timeout":
-      return "tiempo agotado";
-    default:
-      return status;
-  }
-}
-
-function getPersonStatusLabel(status: "missing" | "found" | "hospitalized" | "unknown"): string {
-  switch (status) {
-    case "missing":
-      return "desaparecido";
-    case "found":
-      return "encontrado";
-    case "hospitalized":
-      return "hospitalizado";
-    case "unknown":
-      return "desconocido";
-    default:
-      return status;
-  }
-}
 
 type HomePageProps = {
   searchParams: Promise<{ q?: string }>;
@@ -131,55 +104,7 @@ export default async function Home({ searchParams }: HomePageProps) {
                   sourceIndex % 2 === 0 ? styles.sourceGroupGreen : styles.sourceGroupBlue
                 }`}
               >
-                <div className={styles.sourceHeaderRow}>
-                  <div className={styles.sourceTitleWrap}>
-                    <h2>Desde: {source.name}</h2>
-                    {source.sourceUrl && (
-                      <a
-                        href={source.sourceUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className={styles.sourceLink}
-                      >
-                        Ver fuente
-                      </a>
-                    )}
-                  </div>
-                  <span className={styles.status}>{getSourceStatusLabel(source.status)}</span>
-                </div>
-
-                {source.results.length === 0 ? (
-                  <p className={styles.noResults}>Esta fuente no reporta coincidencias.</p>
-                ) : (
-                  <div className={styles.cardGrid}>
-                    {source.results.map((result) => (
-                      <article key={result.id} className={styles.resultCard}>
-                        <p className={styles.personName}>{result.name}</p>
-                        <p>
-                          <strong>Edad:</strong> {result.age ?? "No reportada"}
-                        </p>
-                        <p>
-                          <strong>Cedula:</strong> {result.cedula ?? "No reportada"}
-                        </p>
-                        <p>
-                          <strong>Estado:</strong> {getPersonStatusLabel(result.status)}
-                        </p>
-                        <p>
-                          <strong>Ubicacion:</strong> {result.location ?? "No reportada"}
-                        </p>
-                        <p>
-                          <strong>Contacto:</strong> {result.contact ?? "No reportado"}
-                        </p>
-                        <p>
-                          <strong>Foto:</strong>{" "}
-                          {result.photoUrl ? "Disponible" : "No reportada"}
-                        </p>
-                      </article>
-                    ))}
-                  </div>
-                )}
-
-                {source.error && <p className={styles.errorText}>Error de fuente: {source.error}</p>}
+                <ResultCards source={source} />
               </article>
             ))}
           </section>
