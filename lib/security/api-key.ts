@@ -23,11 +23,6 @@ export function extractApiKey(request: NextRequest): string | null {
     return headerKey;
   }
 
-  const queryKey = request.nextUrl.searchParams.get("apiKey")?.trim();
-  if (queryKey) {
-    return queryKey;
-  }
-
   return null;
 }
 

@@ -1,4 +1,5 @@
 import type { PersonResult, PersonStatus, SourceAdapter } from "@/lib/search/types";
+import { toOptionalString } from "@/lib/search/sources/common";
 
 const SOURCE_KEY = "911-ubica-me";
 const SOURCE_NAME = "911.ubica.me";
@@ -6,15 +7,12 @@ const SOURCE_URL = "https://911.ubica.me/";
 const BASE_DATA_URL = "https://911.ubica.me/public/data";
 
 interface Ubica911Record {
-  source?: string;
   person_record_id?: string;
   full_name?: string;
-  age?: string;
   ext_venezuela_ci?: string;
   phone?: string;
   last_known_location?: string;
   hospital?: string;
-  notes?: string;
   status?: string;
   source_date?: string;
 }
@@ -53,13 +51,13 @@ function mapStatus(status: string | undefined): PersonStatus {
 }
 
 function getRecordId(record: Ubica911Record): string {
-  const personRecordId = record.person_record_id?.trim();
+  const personRecordId = toOptionalString(record.person_record_id);
   if (personRecordId) {
     return personRecordId;
   }
 
   const fallbackParts = [record.full_name, record.ext_venezuela_ci, record.source_date]
-    .map((value) => value?.trim())
+    .map((value) => toOptionalString(value))
     .filter((value): value is string => Boolean(value));
 
   if (fallbackParts.length > 0) {
@@ -70,13 +68,14 @@ function getRecordId(record: Ubica911Record): string {
 }
 
 function mapRecord(record: Ubica911Record): PersonResult | null {
-  const name = record.full_name?.trim();
+  const name = toOptionalString(record.full_name);
   if (!name) {
     return null;
   }
 
-  const location = record.last_known_location?.trim() || record.hospital?.trim() || null;
-  const contact = record.phone?.trim() || null;
+  const location =
+    toOptionalString(record.last_known_location) ?? toOptionalString(record.hospital);
+  const contact = toOptionalString(record.phone);
 
   return {
     id: getRecordId(record),
@@ -87,8 +86,8 @@ function mapRecord(record: Ubica911Record): PersonResult | null {
     status: mapStatus(record.status),
     location,
     contact,
-    profileUrl: null,
-    lastUpdated: record.source_date?.trim() || null,
+    profileUrl: SOURCE_URL,
+    lastUpdated: toOptionalString(record.source_date),
   };
 }
 
@@ -108,7 +107,7 @@ async function fetchRecordsByLetter(letter: string): Promise<Ubica911Record[]> {
 }
 
 function recordMatchesQuery(record: Ubica911Record, normalizedQuery: string): boolean {
-  const fullName = record.full_name?.trim();
+  const fullName = toOptionalString(record.full_name);
   if (!fullName) {
     return false;
   }

@@ -1,4 +1,5 @@
 import type { PersonResult, SourceAdapter } from "@/lib/search/types";
+import { toOptionalString } from "@/lib/search/sources/common";
 
 const SOURCE_KEY = "hospitales-en-venezuela";
 const SOURCE_NAME = "hospitalesenvenezuela.com";
@@ -8,25 +9,12 @@ const RPC_URL =
 
 interface HospitalesVeRecord {
   nombre?: string | null;
-  detalle?: string | null;
-  cedula?: string | null;
   centro?: string | null;
   ciudad?: string | null;
   telefono?: string | null;
-  estado?: string | null;
-  estado_por?: string | null;
-  estado_fecha?: string | null;
   registrado?: string | null;
-  registrado_por?: string | null;
-  vol_nombre?: string | null;
   vol_tel?: string | null;
   contacto?: string | null;
-  correcciones?: unknown[];
-}
-
-function toOptionalString(value: string | null | undefined): string | null {
-  const normalized = value?.trim();
-  return normalized ? normalized : null;
 }
 
 function buildLocation(record: HospitalesVeRecord): string | null {

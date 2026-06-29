@@ -20,6 +20,23 @@ export interface SourceAdapter {
   search(query: string): Promise<PersonResult[]>;
 }
 
+export interface SourceCatalogEntry {
+  key: string;
+  name: string;
+  sourceUrl?: string;
+  enabled: boolean;
+  note?: string;
+  adapter: SourceAdapter;
+}
+
+export interface PublicSourceCatalogEntry {
+  key: string;
+  name: string;
+  sourceUrl?: string;
+  enabled: boolean;
+  note?: string;
+}
+
 export type SourceSearchStatus = "ok" | "error" | "timeout";
 
 export interface SourceSearchResult {

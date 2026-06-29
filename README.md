@@ -25,12 +25,13 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
 
 Endpoint:
 
-- `GET /api/search?q=<name>`
+- `GET /api/search?q=<name>` (external partner API, API key required)
+- `GET /api/ui/search?q=<name>` (internal UI API, no API key from browser)
+- `GET /api/sources` (site catalog with enable/disable and notes)
 
 Authentication:
 
-- Header (preferred): `x-api-key: <key>`
-- Query fallback: `?apiKey=<key>`
+- Header: `x-api-key: <key>`
 
 Example request:
 
@@ -78,8 +79,31 @@ See `.env.example`:
 
 ## Current Sources
 
-- `911.ubica.me` (per-letter JSON files)
-- `hospitalesenvenezuela.com` (Supabase RPC `buscar_paciente`)
+- `911.ubica.me` (enabled) - per-letter JSON files
+- `hospitalesenvenezuela.com` (enabled) - Supabase RPC `buscar_paciente`
+- `rescateinfantilvenezuela.com` (disabled) - reCAPTCHA needed; contact source developer for integration access
+- `desaparecidos-terremoto-api.theempire.tech` (enabled) - `GET /api/personas?page=1&pageSize=20&q=<name>`
+- `venezuelatebusca.com` (enabled) - `GET /_root.data?query=<name>`
+
+## Source Management
+
+- Source toggles are managed in `lib/search/registry.ts` via `SOURCE_CATALOG`.
+- Use `enabled: false` to temporarily disable a source without removing adapter code.
+- Add operational notes in `note` (for blockers like reCAPTCHA or maintenance).
+- `GET /api/sources` returns this catalog (enabled/disabled + notes) for operators.
+- Search engine enforces unique result IDs per response in case upstream sources emit duplicates.
+
+## API Boundaries
+
+- External consumers should use `GET /api/search` with `x-api-key`.
+- The web UI uses `GET /api/ui/search` without exposing API keys in browser requests.
+- API keys are server-only and should never be sent as query params.
+- `GET /api/ui/search` accepts only same-origin requests (Origin/Referer host match).
+
+## Rate Limit Notes
+
+- IP is read from `x-forwarded-for` / `x-real-ip` when available.
+- If IP is unavailable, the app uses a lightweight pseudo-IP fallback to avoid one global `unknown` bucket.
 
 ## Scripts
 

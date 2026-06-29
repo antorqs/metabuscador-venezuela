@@ -1,34 +1,8 @@
+import { headers } from "next/headers";
+
+import { normalizeSearchQuery } from "@/lib/search/query";
 import styles from "./page.module.css";
-import { searchAllSources } from "@/lib/search/engine";
-
-const DEFAULT_SOURCE_TIMEOUT_MS = 7000;
-const DEFAULT_MAX_RESULTS_PER_SOURCE = 50;
-
-function getPositiveInt(value: string | undefined, fallback: number): number {
-  if (!value) {
-    return fallback;
-  }
-
-  const parsed = Number.parseInt(value, 10);
-  if (!Number.isFinite(parsed) || parsed <= 0) {
-    return fallback;
-  }
-
-  return parsed;
-}
-
-function normalizeQuery(value: string | undefined): string | null {
-  const normalized = value?.trim();
-  if (!normalized) {
-    return null;
-  }
-
-  if (normalized.length < 2 || normalized.length > 120) {
-    return null;
-  }
-
-  return normalized;
-}
+import type { MetaSearchResponse } from "@/lib/search/types";
 
 function getSourceStatusLabel(status: "ok" | "error" | "timeout"): string {
   switch (status) {
@@ -62,24 +36,35 @@ type HomePageProps = {
   searchParams: Promise<{ q?: string }>;
 };
 
+async function getUiSearchUrl(query: string): Promise<string> {
+  const incomingHeaders = await headers();
+  const host = incomingHeaders.get("x-forwarded-host") ?? incomingHeaders.get("host");
+  const protocol = incomingHeaders.get("x-forwarded-proto") ?? "http";
+
+  if (!host) {
+    return `/api/ui/search?q=${encodeURIComponent(query)}`;
+  }
+
+  const baseUrl = `${protocol}://${host}`;
+  return `${baseUrl}/api/ui/search?q=${encodeURIComponent(query)}`;
+}
+
 export default async function Home({ searchParams }: HomePageProps) {
   const params = await searchParams;
-  const query = normalizeQuery(params.q);
+  const query = normalizeSearchQuery(params.q);
 
-  const sourceTimeoutMs = getPositiveInt(
-    process.env.SOURCE_TIMEOUT_MS,
-    DEFAULT_SOURCE_TIMEOUT_MS,
-  );
-  const maxResultsPerSource = getPositiveInt(
-    process.env.MAX_RESULTS_PER_SOURCE,
-    DEFAULT_MAX_RESULTS_PER_SOURCE,
-  );
-
-  const payload = query
-    ? await searchAllSources(query, {
-        sourceTimeoutMs,
-        maxResultsPerSource,
+  const payload: MetaSearchResponse | null = query
+    ? await fetch(await getUiSearchUrl(query), {
+        cache: "no-store",
       })
+        .then(async (response) => {
+          if (!response.ok) {
+            return null;
+          }
+
+          return (await response.json()) as MetaSearchResponse;
+        })
+        .catch(() => null)
     : null;
 
   return (

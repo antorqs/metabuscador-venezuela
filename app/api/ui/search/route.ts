@@ -3,40 +3,71 @@ import { NextResponse, type NextRequest } from "next/server";
 import { getClientIp } from "@/lib/http/client-ip";
 import { searchAllSources } from "@/lib/search/engine";
 import { normalizeSearchQuery } from "@/lib/search/query";
-import { hasValidApiKey } from "@/lib/security/api-key";
 import { checkRateLimit } from "@/lib/security/rate-limit";
 import { parsePositiveInt } from "@/lib/utils/number";
 
 const DEFAULT_SOURCE_TIMEOUT_MS = 7000;
 const DEFAULT_MAX_RESULTS_PER_SOURCE = 50;
-const DEFAULT_RATE_LIMIT_MAX = 20;
+const DEFAULT_RATE_LIMIT_MAX = 30;
 const DEFAULT_RATE_LIMIT_WINDOW_MS = 60_000;
-const DEFAULT_RATE_LIMIT_BASE_COOLDOWN_MS = 30_000;
-const DEFAULT_RATE_LIMIT_MAX_COOLDOWN_MS = 120_000;
+const DEFAULT_RATE_LIMIT_BASE_COOLDOWN_MS = 10_000;
+const DEFAULT_RATE_LIMIT_MAX_COOLDOWN_MS = 60_000;
 const DEFAULT_RATE_LIMIT_STRIKE_RESET_MS = 5 * 60_000;
 
+function hasAllowedOrigin(request: NextRequest): boolean {
+  const host = request.headers.get("x-forwarded-host") ?? request.headers.get("host");
+  if (!host) {
+    return false;
+  }
+
+  const allowedOrigins = [
+    `https://${host}`,
+    `http://${host}`,
+  ];
+
+  const origin = request.headers.get("origin")?.trim();
+  if (origin && allowedOrigins.includes(origin)) {
+    return true;
+  }
+
+  const referer = request.headers.get("referer")?.trim();
+  if (referer) {
+    try {
+      const refererOrigin = new URL(referer).origin;
+      return allowedOrigins.includes(refererOrigin);
+    } catch {
+      return false;
+    }
+  }
+
+  return false;
+}
+
 export async function GET(request: NextRequest): Promise<Response> {
-  if (!hasValidApiKey(request)) {
+  if (!hasAllowedOrigin(request)) {
     return NextResponse.json(
-      { error: "No autorizado: falta x-api-key o es invalido" },
-      { status: 401 },
+      { error: "Origen no permitido" },
+      { status: 403 },
     );
   }
 
   const ip = getClientIp(request);
   const rateLimit = checkRateLimit(ip, {
-    maxRequests: parsePositiveInt(process.env.RATE_LIMIT_MAX, DEFAULT_RATE_LIMIT_MAX),
-    windowMs: parsePositiveInt(process.env.RATE_LIMIT_WINDOW_MS, DEFAULT_RATE_LIMIT_WINDOW_MS),
+    maxRequests: parsePositiveInt(process.env.UI_RATE_LIMIT_MAX, DEFAULT_RATE_LIMIT_MAX),
+    windowMs: parsePositiveInt(
+      process.env.UI_RATE_LIMIT_WINDOW_MS,
+      DEFAULT_RATE_LIMIT_WINDOW_MS,
+    ),
     baseCooldownMs: parsePositiveInt(
-      process.env.RATE_LIMIT_BASE_COOLDOWN_MS,
+      process.env.UI_RATE_LIMIT_BASE_COOLDOWN_MS,
       DEFAULT_RATE_LIMIT_BASE_COOLDOWN_MS,
     ),
     maxCooldownMs: parsePositiveInt(
-      process.env.RATE_LIMIT_MAX_COOLDOWN_MS,
+      process.env.UI_RATE_LIMIT_MAX_COOLDOWN_MS,
       DEFAULT_RATE_LIMIT_MAX_COOLDOWN_MS,
     ),
     strikeResetMs: parsePositiveInt(
-      process.env.RATE_LIMIT_STRIKE_RESET_MS,
+      process.env.UI_RATE_LIMIT_STRIKE_RESET_MS,
       DEFAULT_RATE_LIMIT_STRIKE_RESET_MS,
     ),
   });
@@ -62,9 +93,7 @@ export async function GET(request: NextRequest): Promise<Response> {
 
   if (!query) {
     return NextResponse.json(
-      {
-        error: "Consulta invalida. Envia ?q= con 2-120 caracteres.",
-      },
+      { error: "Consulta invalida. Envia ?q= con 2-120 caracteres." },
       { status: 400, headers },
     );
   }

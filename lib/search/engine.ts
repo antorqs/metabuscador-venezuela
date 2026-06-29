@@ -39,11 +39,32 @@ function withTimeout<T>(
 }
 
 function normalizeResults(results: PersonResult[], maxResults: number): PersonResult[] {
-  if (results.length <= maxResults) {
-    return results;
+  const uniqueResults = ensureUniqueResultIds(results);
+
+  if (uniqueResults.length <= maxResults) {
+    return uniqueResults;
   }
 
-  return results.slice(0, maxResults);
+  return uniqueResults.slice(0, maxResults);
+}
+
+function ensureUniqueResultIds(results: PersonResult[]): PersonResult[] {
+  const counts = new Map<string, number>();
+
+  return results.map((result) => {
+    const currentCount = counts.get(result.id) ?? 0;
+    const nextCount = currentCount + 1;
+    counts.set(result.id, nextCount);
+
+    if (currentCount === 0) {
+      return result;
+    }
+
+    return {
+      ...result,
+      id: `${result.id}#${nextCount}`,
+    };
+  });
 }
 
 function toSourceErrorMessage(error: unknown): string {
