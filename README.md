@@ -168,6 +168,8 @@ See `.env.example`:
 - `911.ubica.me` (enabled) - per-letter JSON files
 - `hospitalesenvenezuela.com` (enabled) - Supabase RPC `buscar_paciente`
 - `rescateinfantilvenezuela.com` (enabled) - `GET /api/search?q=<name>&page=1&limit=20`
+- `encuentralos.tecnosoft.dev` (enabled) - `GET /api/personas?limit=50&offset=0&q=<name>`
+- `localizapacientes.com` (enabled) - `GET /api/search?q=<name>`
 - `desaparecidos-terremoto-api.theempire.tech` (disabled) - reCAPTCHA needed; contact source developer for integration access
 - `venezuelatebusca.com` (disabled) - CORS + Cloudflare challenge; pending allowlist/API access
 

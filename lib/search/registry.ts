@@ -1,5 +1,7 @@
+import encuentralosAdapter from "@/lib/search/sources/encuentralos";
 import desaparecidosTerremotoAdapter from "@/lib/search/sources/desaparecidosTerremoto";
 import hospitalesVeAdapter from "@/lib/search/sources/hospitalesVe";
+import localizaPacientesAdapter from "@/lib/search/sources/localizaPacientes";
 import rescateInfantilAdapter from "@/lib/search/sources/rescateInfantil";
 import ubica911Adapter from "@/lib/search/sources/ubica911";
 import venezuelaTeBuscaAdapter from "@/lib/search/sources/venezuelaTeBusca";
@@ -30,6 +32,20 @@ export const SOURCE_CATALOG: SourceCatalogEntry[] = [
     sourceUrl: rescateInfantilAdapter.sourceUrl,
     enabled: true,
     adapter: rescateInfantilAdapter,
+  },
+  {
+    key: encuentralosAdapter.key,
+    name: encuentralosAdapter.displayName,
+    sourceUrl: encuentralosAdapter.sourceUrl,
+    enabled: true,
+    adapter: encuentralosAdapter,
+  },
+  {
+    key: localizaPacientesAdapter.key,
+    name: localizaPacientesAdapter.displayName,
+    sourceUrl: localizaPacientesAdapter.sourceUrl,
+    enabled: true,
+    adapter: localizaPacientesAdapter,
   },
   {
     key: desaparecidosTerremotoAdapter.key,

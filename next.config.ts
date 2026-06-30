@@ -19,6 +19,10 @@ const nextConfig: NextConfig = {
         protocol: "https",
         hostname: "911.ubica.me",
       },
+      {
+        protocol: "https",
+        hostname: "reconexion-api-images-147455119818.s3.us-east-1.amazonaws.com",
+      },
     ],
   },
 };
