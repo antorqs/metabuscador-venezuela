@@ -2,6 +2,7 @@ import { headers } from "next/headers";
 
 import ResultCards from "@/components/result-cards";
 import { normalizeSearchQuery } from "@/lib/search/query";
+import { getPublicSourceCatalog } from "@/lib/search/registry";
 import styles from "./page.module.css";
 import type { MetaSearchApiResponse } from "@/lib/search/types";
 
@@ -34,6 +35,9 @@ async function getUiSearchUrl(query: string): Promise<string> {
 export default async function Home({ searchParams }: HomePageProps) {
   const params = await searchParams;
   const query = normalizeSearchQuery(params.q);
+  const enabledSourceNames = getPublicSourceCatalog()
+    .filter((source) => source.enabled)
+    .map((source) => source.name);
 
   const payload: MetaSearchApiResponse | null = query
     ? await fetch(await getUiSearchUrl(query), {
@@ -85,6 +89,17 @@ export default async function Home({ searchParams }: HomePageProps) {
             </button>
           </div>
         </form>
+
+        <details className={styles.sourceCatalogBox}>
+          <summary className={styles.sourceCatalogToggle}>Ver fuentes habilitadas</summary>
+          <ul className={styles.sourceCatalogList}>
+            {enabledSourceNames.map((sourceName) => (
+              <li key={sourceName} className={styles.sourceCatalogItem}>
+                {sourceName}
+              </li>
+            ))}
+          </ul>
+        </details>
 
         {!query && (
           <section className={styles.emptyState}>

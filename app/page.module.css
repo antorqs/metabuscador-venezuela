@@ -107,6 +107,31 @@
   background: var(--accent-hover);
 }
 
+.sourceCatalogBox {
+  border: 1px solid #b9d6c5;
+  border-radius: 12px;
+  background: #eff7f2;
+  padding: 0.55rem 0.7rem;
+}
+
+.sourceCatalogToggle {
+  cursor: pointer;
+  font-weight: 600;
+  color: #1f5f3d;
+}
+
+.sourceCatalogList {
+  margin-top: 0.6rem;
+  padding-left: 1rem;
+  display: grid;
+  gap: 0.3rem;
+}
+
+.sourceCatalogItem {
+  color: #355b47;
+  line-height: 1.35;
+}
+
 .emptyState {
   border: 1px dashed var(--line);
   border-radius: 12px;
