@@ -39,6 +39,13 @@ export interface PublicSourceCatalogEntry {
   note?: string;
 }
 
+export type IgnoredSourceReason = "unknown_source" | "disabled_source";
+
+export interface IgnoredSourceSelection {
+  key: string;
+  reason: IgnoredSourceReason;
+}
+
 export type SourceSearchStatus = "ok" | "error" | "timeout";
 
 export interface SourceSearchResult {
@@ -55,3 +62,11 @@ export interface MetaSearchResponse {
   searchedAt: string;
   sources: SourceSearchResult[];
 }
+
+export interface SourceSelectionMetadata {
+  requestedSources: string[];
+  appliedSources: string[];
+  ignoredSources: IgnoredSourceSelection[];
+}
+
+export type MetaSearchApiResponse = MetaSearchResponse & SourceSelectionMetadata;

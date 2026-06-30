@@ -62,3 +62,7 @@ export function getPublicSourceCatalog(): PublicSourceCatalogEntry[] {
     note: entry.note,
   }));
 }
+
+export function getSourceCatalog(): SourceCatalogEntry[] {
+  return SOURCE_CATALOG;
+}

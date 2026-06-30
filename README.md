@@ -33,10 +33,66 @@ Authentication:
 
 - Header: `x-api-key: <key>`
 
+### How to use `/api/search` (descriptive)
+
+`/api/search` is the public aggregation endpoint for partner sites and tools.
+
+Request flow:
+
+1. Send a `GET` request with a person name in `q`.
+2. Include your API key in `x-api-key`.
+3. Optionally restrict which sources are queried.
+4. Read `sources[]` for grouped results and status by source.
+5. Use metadata (`requestedSources`, `appliedSources`, `ignoredSources`) to understand what was actually executed.
+
+Required parameter:
+
+- `q`: search query (2-120 characters)
+
+Optional source filter parameters:
+
+- Repeated param format: `source=key1&source=key2`
+- CSV format: `sources=key1,key2,key3`
+- You can combine both; keys are merged, trimmed, deduplicated.
+
+Source filtering behavior:
+
+- No source filters provided -> all enabled sources are queried.
+- Unknown source key -> ignored and reported as `unknown_source`.
+- Disabled source key -> ignored and reported as `disabled_source`.
+- If all requested sources are ignored, request still returns `200` with empty `sources` and metadata explaining why.
+
+Response metadata fields:
+
+- `requestedSources`: all requested keys after normalization.
+- `appliedSources`: enabled known keys that were actually queried.
+- `ignoredSources`: keys that were skipped with a reason.
+
 Example request:
 
 ```bash
 curl "http://localhost:3000/api/search?q=maria" \
+  -H "x-api-key: replace-with-your-emergency-key"
+```
+
+Example with repeated source params:
+
+```bash
+curl "http://localhost:3000/api/search?q=daniel&source=911-ubica-me&source=hospitales-en-venezuela" \
+  -H "x-api-key: replace-with-your-emergency-key"
+```
+
+Example with CSV source params:
+
+```bash
+curl "http://localhost:3000/api/search?q=daniel&sources=911-ubica-me,hospitales-en-venezuela" \
+  -H "x-api-key: replace-with-your-emergency-key"
+```
+
+Example with mixed valid + invalid + disabled:
+
+```bash
+curl "http://localhost:3000/api/search?q=daniel&source=911-ubica-me&sources=venezuela-te-busca,fuente-inexistente" \
   -H "x-api-key: replace-with-your-emergency-key"
 ```
 
@@ -46,6 +102,19 @@ Example successful response:
 {
   "query": "maria",
   "searchedAt": "2026-06-29T00:00:00.000Z",
+  "requestedSources": [
+    "911-ubica-me",
+    "fuente-inexistente"
+  ],
+  "appliedSources": [
+    "911-ubica-me"
+  ],
+  "ignoredSources": [
+    {
+      "key": "fuente-inexistente",
+      "reason": "unknown_source"
+    }
+  ],
   "sources": [
     {
       "key": "911-ubica-me",

@@ -113,13 +113,16 @@ export interface SearchEngineOptions {
 export async function searchAllSources(
   query: string,
   options: SearchEngineOptions = {},
+  selectedSources?: SourceAdapter[],
 ): Promise<MetaSearchResponse> {
   const sourceTimeoutMs = options.sourceTimeoutMs ?? DEFAULT_SOURCE_TIMEOUT_MS;
   const maxResultsPerSource =
     options.maxResultsPerSource ?? DEFAULT_MAX_RESULTS_PER_SOURCE;
 
+  const sourcesToSearch = selectedSources ?? REGISTERED_SOURCES;
+
   const sourceResults = await Promise.all(
-    REGISTERED_SOURCES.map((source) =>
+    sourcesToSearch.map((source) =>
       searchSource(source, query, sourceTimeoutMs, maxResultsPerSource),
     ),
   );

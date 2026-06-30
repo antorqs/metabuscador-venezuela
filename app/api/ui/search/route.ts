@@ -3,6 +3,12 @@ import { NextResponse, type NextRequest } from "next/server";
 import { getClientIp } from "@/lib/http/client-ip";
 import { searchAllSources } from "@/lib/search/engine";
 import { normalizeSearchQuery } from "@/lib/search/query";
+import { getSourceCatalog } from "@/lib/search/registry";
+import {
+  parseRequestedSourceKeys,
+  resolveSourceSelection,
+} from "@/lib/search/source-filter";
+import type { MetaSearchApiResponse } from "@/lib/search/types";
 import { checkRateLimit } from "@/lib/security/rate-limit";
 import { parsePositiveInt } from "@/lib/utils/number";
 
@@ -121,10 +127,20 @@ export async function GET(request: NextRequest): Promise<Response> {
     DEFAULT_MAX_RESULTS_PER_SOURCE,
   );
 
+  const requestedSources = parseRequestedSourceKeys(request.nextUrl.searchParams);
+  const selection = resolveSourceSelection(requestedSources, getSourceCatalog());
+
   const payload = await searchAllSources(query, {
     sourceTimeoutMs,
     maxResultsPerSource,
-  });
+  }, selection.appliedEntries.map((entry) => entry.adapter));
 
-  return NextResponse.json(payload, { status: 200, headers });
+  const responsePayload: MetaSearchApiResponse = {
+    ...payload,
+    requestedSources: selection.requestedSourceKeys,
+    appliedSources: selection.appliedEntries.map((entry) => entry.key),
+    ignoredSources: selection.ignoredSources,
+  };
+
+  return NextResponse.json(responsePayload, { status: 200, headers });
 }

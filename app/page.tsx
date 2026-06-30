@@ -3,7 +3,7 @@ import { headers } from "next/headers";
 import ResultCards from "@/components/result-cards";
 import { normalizeSearchQuery } from "@/lib/search/query";
 import styles from "./page.module.css";
-import type { MetaSearchResponse } from "@/lib/search/types";
+import type { MetaSearchApiResponse } from "@/lib/search/types";
 
 type HomePageProps = {
   searchParams: Promise<{ q?: string }>;
@@ -26,7 +26,7 @@ export default async function Home({ searchParams }: HomePageProps) {
   const params = await searchParams;
   const query = normalizeSearchQuery(params.q);
 
-  const payload: MetaSearchResponse | null = query
+  const payload: MetaSearchApiResponse | null = query
     ? await fetch(await getUiSearchUrl(query), {
         cache: "no-store",
         headers: {
@@ -38,7 +38,7 @@ export default async function Home({ searchParams }: HomePageProps) {
             return null;
           }
 
-          return (await response.json()) as MetaSearchResponse;
+          return (await response.json()) as MetaSearchApiResponse;
         })
         .catch(() => null)
     : null;
