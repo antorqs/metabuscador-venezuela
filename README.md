@@ -157,6 +157,7 @@ See `.env.example`:
 
 - `API_KEYS` comma-separated allowed keys
 - `HOSPITALES_VE_ANON_KEY` anon key used by the hospitalesenvenezuela.com source
+- `HELPMAPVZLA_API_KEY` publishable key used by the HelpMapVzla Supabase source
 - `INTERNAL_UI_SEARCH_KEY` shared secret for server-side UI calls to `/api/ui/search`
 - `RATE_LIMIT_MAX`, `RATE_LIMIT_WINDOW_MS`
 - `RATE_LIMIT_BASE_COOLDOWN_MS`, `RATE_LIMIT_MAX_COOLDOWN_MS`, `RATE_LIMIT_STRIKE_RESET_MS`
@@ -170,6 +171,8 @@ See `.env.example`:
 - `rescateinfantilvenezuela.com` (enabled) - `GET /api/search?q=<name>&page=1&limit=20`
 - `encuentralos.tecnosoft.dev` (enabled) - `GET /api/personas?limit=50&offset=0&q=<name>`
 - `localizapacientes.com` (enabled) - `GET /api/search?q=<name>`
+- `buscaenlistasvzla.info` (enabled) - `GET /search?q=<name>`
+- `helpmapvzla.net` (enabled) - Supabase REST query by `nombres/apellidos` token OR
 - `desaparecidos-terremoto-api.theempire.tech` (disabled) - reCAPTCHA needed; contact source developer for integration access
 - `venezuelatebusca.com` (disabled) - CORS + Cloudflare challenge; pending allowlist/API access
 

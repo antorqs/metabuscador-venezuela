@@ -9,6 +9,15 @@ type HomePageProps = {
   searchParams: Promise<{ q?: string }>;
 };
 
+const HOSPITAL_SOURCE_KEYS = new Set<string>([
+  "hospitales-en-venezuela",
+  "rescate-infantil-venezuela",
+  "encuentralos-tecnosoft",
+  "localiza-pacientes",
+  "busca-en-listas-vzla",
+  "helpmap-vzla",
+]);
+
 async function getUiSearchUrl(query: string): Promise<string> {
   const incomingHeaders = await headers();
   const host = incomingHeaders.get("x-forwarded-host") ?? incomingHeaders.get("host");
@@ -97,16 +106,47 @@ export default async function Home({ searchParams }: HomePageProps) {
               Mostrando resultados para <strong>{payload.query}</strong>
             </p>
 
-            {payload.sources.map((source, sourceIndex) => (
-              <article
-                key={source.key}
-                className={`${styles.sourceGroup} ${
-                  sourceIndex % 2 === 0 ? styles.sourceGroupGreen : styles.sourceGroupBlue
-                }`}
-              >
-                <ResultCards source={source} />
-              </article>
-            ))}
+            <section className={styles.sectionBlock}>
+              <h2 className={styles.sectionTitle}>Con informacion de hospitalizacion</h2>
+
+              {payload.sources.filter((source) => HOSPITAL_SOURCE_KEYS.has(source.key)).length === 0 && (
+                <p className={styles.sectionHint}>No hay fuentes disponibles en esta seccion.</p>
+              )}
+
+              {payload.sources
+                .filter((source) => HOSPITAL_SOURCE_KEYS.has(source.key))
+                .map((source, sourceIndex) => (
+                  <article
+                    key={source.key}
+                    className={`${styles.sourceGroup} ${
+                      sourceIndex % 2 === 0 ? styles.sourceGroupGreen : styles.sourceGroupBlue
+                    }`}
+                  >
+                    <ResultCards source={source} />
+                  </article>
+                ))}
+            </section>
+
+            <section className={styles.sectionBlock}>
+              <h2 className={styles.sectionTitle}>Reportes de desaparecidos</h2>
+
+              {payload.sources.filter((source) => !HOSPITAL_SOURCE_KEYS.has(source.key)).length === 0 && (
+                <p className={styles.sectionHint}>No hay fuentes disponibles en esta seccion.</p>
+              )}
+
+              {payload.sources
+                .filter((source) => !HOSPITAL_SOURCE_KEYS.has(source.key))
+                .map((source, sourceIndex) => (
+                  <article
+                    key={source.key}
+                    className={`${styles.sourceGroup} ${
+                      sourceIndex % 2 === 0 ? styles.sourceGroupGreen : styles.sourceGroupBlue
+                    }`}
+                  >
+                    <ResultCards source={source} />
+                  </article>
+                ))}
+            </section>
           </section>
         )}
       </main>

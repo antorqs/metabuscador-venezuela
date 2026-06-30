@@ -1,5 +1,7 @@
 import encuentralosAdapter from "@/lib/search/sources/encuentralos";
+import buscaEnListasVzlaAdapter from "@/lib/search/sources/buscaEnListasVzla";
 import desaparecidosTerremotoAdapter from "@/lib/search/sources/desaparecidosTerremoto";
+import helpMapVzlaAdapter from "@/lib/search/sources/helpMapVzla";
 import hospitalesVeAdapter from "@/lib/search/sources/hospitalesVe";
 import localizaPacientesAdapter from "@/lib/search/sources/localizaPacientes";
 import rescateInfantilAdapter from "@/lib/search/sources/rescateInfantil";
@@ -46,6 +48,20 @@ export const SOURCE_CATALOG: SourceCatalogEntry[] = [
     sourceUrl: localizaPacientesAdapter.sourceUrl,
     enabled: true,
     adapter: localizaPacientesAdapter,
+  },
+  {
+    key: buscaEnListasVzlaAdapter.key,
+    name: buscaEnListasVzlaAdapter.displayName,
+    sourceUrl: buscaEnListasVzlaAdapter.sourceUrl,
+    enabled: true,
+    adapter: buscaEnListasVzlaAdapter,
+  },
+  {
+    key: helpMapVzlaAdapter.key,
+    name: helpMapVzlaAdapter.displayName,
+    sourceUrl: helpMapVzlaAdapter.sourceUrl,
+    enabled: true,
+    adapter: helpMapVzlaAdapter,
   },
   {
     key: desaparecidosTerremotoAdapter.key,

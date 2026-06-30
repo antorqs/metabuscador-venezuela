@@ -129,6 +129,24 @@
   gap: 0.9rem;
 }
 
+.sectionBlock {
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+}
+
+.sectionTitle {
+  font-size: clamp(1.08rem, 1.6vw, 1.32rem);
+  color: #224635;
+  border-left: 4px solid #76b090;
+  padding-left: 0.5rem;
+}
+
+.sectionHint {
+  color: var(--muted);
+  font-size: 0.92rem;
+}
+
 .resultMeta {
   color: var(--muted);
 }
@@ -225,6 +243,33 @@
   color: #174f7a;
 }
 
+.showAllButton {
+  align-self: flex-start;
+  border: 1px solid #8abf9e;
+  border-radius: 999px;
+  background: #edf7f1;
+  color: #1f5f3d;
+  padding: 0.42rem 1.4rem;
+  min-width: 14rem;
+  font-size: 0.84rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.showAllButton:hover {
+  background: #e0efe6;
+}
+
+.sourceInfoHint {
+  font-size: 0.84rem;
+  color: #4a5f6c;
+  background: #ecf4fb;
+  border: 1px solid #c8d9ea;
+  border-radius: 10px;
+  padding: 0.45rem 0.6rem;
+  line-height: 1.35;
+}
+
 .status {
   font-size: 0.8rem;
   text-transform: uppercase;
@@ -234,6 +279,41 @@
   padding: 0.15rem 0.45rem;
   color: #2d4f6b;
   background: #eff5fb;
+}
+
+.personStatusTag {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  padding: 0.08rem 0.45rem;
+  font-size: 0.78rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.personStatusMissing {
+  color: #8f2020;
+  background: #fdecec;
+  border: 1px solid #efb7b7;
+}
+
+.personStatusFound {
+  color: #206542;
+  background: #e8f8ef;
+  border: 1px solid #b8e0c8;
+}
+
+.personStatusHospitalized {
+  color: #255f8f;
+  background: #eaf3fd;
+  border: 1px solid #bfd5ec;
+}
+
+.personStatusUnknown {
+  color: #4f5960;
+  background: #edf1f4;
+  border: 1px solid #ccd4da;
 }
 
 .cardGrid {
@@ -350,6 +430,10 @@
 
   .cardGrid {
     grid-template-columns: 1fr;
+  }
+
+  .sectionTitle {
+    font-size: 1rem;
   }
 }
 
